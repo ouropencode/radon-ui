@@ -2,7 +2,7 @@
   "name": "radon-ui",
   "version": "3.0.0",
   "authors": [
-    "Peter Corcoran <peter@lemondigits.com>"
+    "Peter Corcoran <peter.corcoran@shadowacre.ltd>"
   ],
   "description": "Radon UI - front end framework for Dachi",
   "moduleType": [
