@@ -6,7 +6,9 @@ Radon.register('internal.ajax', function(scope) {
 
 	scope.$$__pageTitle = "loading...";
 
-	scope.$$__curentData = {};
+	scope.$$__currentData = {};
+
+	scope.$$__currentRenderTemplate = $('base').data('render-tpl') || "@global/base";
 
 	var createHook = function(hook) {
 		scope.$$__hooks[hook] = [];
@@ -48,6 +50,13 @@ Radon.register('internal.ajax', function(scope) {
 	scope.processRenderActions = function(data, url) {
 		var a, action;
 
+		if(data.render_tpl != scope.$$__currentRenderTemplate) {
+			scope.renderTemplate(data.render_tpl, null, data.data, () => {
+				scope.processRenderActions(data, url);)
+			});
+			return;
+		}
+
 		scope.$$__currentData = data;
 		if(data.render_actions !== undefined) {
 			for(a in data.render_actions) {
@@ -85,7 +94,7 @@ Radon.register('internal.ajax', function(scope) {
 		callHook("GlobalRenderActionsCallback", data, url);
 	};
 
-	scope.renderTemplate = function(template, target, data) {
+	scope.renderTemplate = function(template, target, data, callback) {
 		if(scope.$$__loadedTemplates[template] === undefined) {
 			scope.log("info", "loading template", template);
 			scope.ajax("__tpl/" + (template.replace(/\//g, "$@$")), {}, function(err, d) {
@@ -93,7 +102,7 @@ Radon.register('internal.ajax', function(scope) {
 					data: d
 				});
 				scope.log("info", "template loaded", template);
-				scope.renderTemplate(template, target, data);
+				scope.renderTemplate(template, target, data, callback);
 			}, {dataType: 'text'});
 
 			return false;
@@ -102,7 +111,7 @@ Radon.register('internal.ajax', function(scope) {
 		Radon.$$__ondestroy(target);
 
 		var output = scope.$$__loadedTemplates[template].render(data);
-		var ele = $("radon-block[id=" + target + "]");
+		var ele = target ? $("radon-block[id=" + target + "]") : $("html");
 		ele.html(output);
 		ele.find('title').each(function() {
 			scope.$$__pageTitle = $(this).text();
@@ -112,6 +121,8 @@ Radon.register('internal.ajax', function(scope) {
 
 		callHook("GlobalRenderCallback", null, ele, data);
 		Radon.$$__onrender();
+		if(typeof callback == 'function')
+			callback();
 	};
 
 	scope.ajax = function(url, data, callback, options) {
