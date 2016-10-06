@@ -52,7 +52,7 @@ Radon.register('internal.ajax', function(scope) {
 
 		if(data.render_tpl != scope.$$__currentRenderTemplate) {
 			scope.renderTemplate(data.render_tpl, null, data.data, () => {
-				scope.processRenderActions(data, url);)
+				scope.processRenderActions(data, url);
 			});
 			return;
 		}
