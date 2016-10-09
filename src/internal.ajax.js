@@ -51,6 +51,8 @@ Radon.register('internal.ajax', function(scope) {
 		var a, action;
 
 		if(data.render_tpl != scope.$$__currentRenderTemplate) {
+			console.log("current render template changed");
+			scope.$$__currentRenderTemplate = data.render_tpl;
 			scope.renderTemplate(data.render_tpl, null, data.data, () => {
 				scope.processRenderActions(data, url);
 			});
@@ -111,8 +113,16 @@ Radon.register('internal.ajax', function(scope) {
 		Radon.$$__ondestroy(target);
 
 		var output = scope.$$__loadedTemplates[template].render(data);
-		var ele = target ? $("radon-block[id=" + target + "]") : $("html");
-		ele.html(output);
+		var ele = null;
+		if(target) {
+			ele = $("radon-block[id=" + target + "]");
+			ele.html(output);
+		} else {
+			ele = $('body');
+			var body_match = output.match(/<\s*body[^>]*>([\s\S]*)<\s*\/\s*body\s*>/);
+			ele.html(body_match[1]);
+		}
+
 		ele.find('title').each(function() {
 			scope.$$__pageTitle = $(this).text();
 			document.title = scope.$$__pageTitle;
