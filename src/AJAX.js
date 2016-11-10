@@ -10,9 +10,10 @@ export class AJAX extends EventEmitter2 {
 	constructor(options) {
 		super();
 
-		this._loadedTemplates = {};
-		this._pageTitle       = $('title').last().text() || "loading...";
-		this._currentData     = {};
+		this._loadedTemplates  = {};
+		this._pageTitle        = $('title').last().text() || "loading...";
+		this._currentData      = {};
+		this._currentRenderTpl = $('base').data('render-tpl') || "@global/base";
 
 		this._options = {
 			disableHistoryAPI: options.disableHistoryAPI ? true : false
@@ -73,7 +74,14 @@ export class AJAX extends EventEmitter2 {
 	}
 
 	processRenderActions(data, url) {
+		if(data.render_tpl != this._currentRenderTpl) {
+			this._currentRenderTpl = data.render_tpl;
+			this.renderTemplate(data.render_tpl, null, data,data, () => this.processRenderActions(data, url));
+			return;
+		}
+
 		this._currentData = data;
+
 		if(data.render_actions !== undefined) {
 			for(let a in data.render_actions) {
 				const action = data.render_actions[a];
@@ -99,14 +107,14 @@ export class AJAX extends EventEmitter2 {
 		this.emit("render-actions", data, url);
 	}
 
-	renderTemplate(template, target, data) {
+	renderTemplate(template, target, data, callback) {
 		if(scope._loadedTemplates[template] === undefined)
-			return this.loadTemplate(template, target, data);
+			return this.loadTemplate(template, target, data, callback);
 
 		this.emit("render-destroy", target);
 
 		const output = this._loadedTemplates[template].render(data);
-		const $ele = $(`radon-block[id=${target}]`);
+		const $ele = target ? $(`radon-block[id=${target}]`) : $("html");
 		$ele.html(output);
 		$ele.find('title').each(title => {
 			this._pageTitle = $(title).text();
@@ -115,12 +123,15 @@ export class AJAX extends EventEmitter2 {
 		});
 
 		this.emit("render", null, ele, data);
+
+		if(typeof callback == 'function')
+			callback();
 	}
 
-	loadTemplate(template, target, data) {
+	loadTemplate(template, target, data, callback) {
 		this.ajax("__tpl/" + (template.replace(/\//g, "$@$")), {}, (err, d) => {
 			this._loadedTemplates[template] = twig({data: d});
-			this.renderTemplate(template, target, data);
+			this.renderTemplate(template, target, data, callback);
 		}, {dataType: 'text'});
 	}
 
