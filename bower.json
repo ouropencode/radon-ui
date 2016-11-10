@@ -1,42 +1,12 @@
-{
-  "name": "radon-ui",
-  "version": "3.0.0",
-  "authors": [
-    "Peter Corcoran <peter.corcoran@shadowacre.ltd>"
-  ],
-  "description": "Radon UI - front end framework for Dachi",
-  "moduleType": [
-    "amd"
-  ],
-  "license": "closed",
-  "ignore": [
-    "**/.*",
-    "bower_components"
-  ],
-  "dependencies": {
-    "jquery": "~2.1.4",
-    "twig.js": "~0.8.2",
-    "pace": "~1.0.2",
+	// in some form
     "fontawesome": "~4.5",
     "animate.css": "~3.3.0",
-    "moment": "~2.10.3",
+
+	// maybe
     "underscore": "~1.8.3",
     "async": "~1.0.0",
-    "history.js": "~1.8.0",
-    "vex": "~2.3.2",
     "ladda": "~0.9.8",
-    "alertify.js": "~0.3.11",
-    "jquery-simulate": "~1.0.1",
-    "jquery-form": "~3.46.0"
-  },
-  "main": [
-    "src/jquery.bind-first.js",
-    "src/radon.js",
-    "src/internal.ajax.js",
-    "src/internal.twig-extensions.js",
-    "src/internal.permissions.js",
-    "src/internal.vex.js",
-    "src/internal.filament.js",
-    "src/pace-style.css"
-  ]
-}
+
+	// todo
+    "moment": "~2.10.3",
+    "pace": "~1.0.2",
