@@ -53,7 +53,7 @@ Radon.register('internal.ajax', function(scope) {
 		if(data.render_tpl != scope.$$__currentRenderTemplate) {
 			console.log("current render template changed");
 			scope.$$__currentRenderTemplate = data.render_tpl;
-			scope.renderTemplate(data.render_tpl, null, data.data, () => {
+			scope.renderTemplate(data.render_tpl, null, data.data, function() {
 				scope.processRenderActions(data, url);
 			});
 			return;
