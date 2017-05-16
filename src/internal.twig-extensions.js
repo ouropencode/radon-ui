@@ -47,7 +47,36 @@ Radon.register('internal.twig-extensions', function(scope) {
 		var date = moment(d, "YYYY-MM-DD HH:mm:ss.SSSS");
 		return date.format("HH:mm");
 	});
+	
+	Twig.extendFilter("date_uk", function(value, arg) {
+		var d = value;
+		if(typeof value == 'object' && value != null && value.date)
+			d = value.date;
 
+		if(!d || d == 'now')
+			d = moment();
+
+		var date = moment(d, "YYYY-MM-DD HH:mm:ss.SSSS");
+		return date.format("DD/MM/YYYY");
+	});
+
+
+	Twig.extendFilter("format_money", function(input, arg) {
+		var value = "&pound;" + Math.abs(round(input, 2)).toFixed(2);
+		return (input < 0 ? "(" + value + ")" : value);
+	});
+	Twig.extendFilter("format_integer", function(input, arg) {
+        var value = Math.abs(input | 0);
+        return (input < 0 ? "(" + value + ")" : value);
+	});
+	Twig.extendFilter("format_percent", function(input, arg) {
+        var value = Math.abs(round(input, 2).toFixed(2)) + "%";
+        return (input < 0 ? "(" + value + ")" : value);
+	});
+	Twig.extendFilter("format_hours", function(input, arg) {
+        var value = Math.abs(round(input, 2).toFixed(2)) + "hrs";
+        return (input < 0 ? "(" + value + ")" : value);
+	});
 
 
 
