@@ -30,6 +30,7 @@ Radon.register('internal.ajax', function(scope) {
 	createHook("GlobalRenderCallback");
 	createHook("GlobalAjaxCallback_Pre");
 	createHook("GlobalAjaxCallback_Post");
+	createHook("GlobalAjaxError");
 
 	scope.processResponseCode = function(data) {
 		if(typeof data.response != 'object' || typeof data.response.status != 'string')
@@ -158,7 +159,11 @@ Radon.register('internal.ajax', function(scope) {
 				callback(null, data);
 				callHook("GlobalAjaxCallback_Post", null, data);
 			},
-			error    : function(xhr, err) { alertify.error("network error"); callback(err, xhr); }
+			error    : function(xhr, err) {
+				alertify.error("network error");
+				callback("GlobalAjaxError", err, xhr);
+				callback(err, xhr);
+			}
 		};
 
 		for(var o in options)
@@ -185,7 +190,11 @@ Radon.register('internal.ajax', function(scope) {
 					callback(null, data);
 				callHook("GlobalAjaxCallback_Post", null, data);
 				},
-				error    : function(xhr, err) { alertify.error("network error"); callback(err, xhr); }
+				error    : function(xhr, err) {
+					alertify.error("network error");
+					callback("GlobalAjaxError", err, xhr);
+					callback(err, xhr);
+				}
 			});
 		});
 	};
