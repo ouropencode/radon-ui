@@ -147,6 +147,7 @@ Radon.register('internal.ajax', function(scope) {
 
 		url += (url.indexOf("?") != -1 ? "&" : "?") + "radon-ui-ajax=true";
 
+		var stack = (new Error()).stack;
 		var settings = {
 			url      : Radon.baseURL + url,
 			method   : data ? "POST" : "GET",
@@ -161,7 +162,7 @@ Radon.register('internal.ajax', function(scope) {
 			},
 			error    : function(xhr, err) {
 				alertify.error("network error");
-				callHook("GlobalAjaxError", err, xhr);
+				callHook("GlobalAjaxError", err, xhr, stack);
 				callback(err, xhr);
 			}
 		};
@@ -178,6 +179,7 @@ Radon.register('internal.ajax', function(scope) {
 		var url = $ele.attr("action");
 		url += (url.indexOf("?") != -1 ? "&" : "?") + "radon-ui-ajax=true";
 
+		var stack = (new Error()).stack;
 		Pace.track(function() {
 			$ele.ajaxSubmit({
 				url      : url,
@@ -192,7 +194,7 @@ Radon.register('internal.ajax', function(scope) {
 				},
 				error    : function(xhr, err) {
 					alertify.error("network error");
-					callHook("GlobalAjaxError", err, xhr);
+					callHook("GlobalAjaxError", err, xhr, stack);
 					callback(err, xhr);
 				}
 			});
