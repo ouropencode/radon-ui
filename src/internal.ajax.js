@@ -192,7 +192,7 @@ Radon.register('internal.ajax', function(scope) {
 				},
 				error    : function(xhr, err) {
 					alertify.error("network error");
-					callback("GlobalAjaxError", err, xhr);
+					callHook("GlobalAjaxError", err, xhr);
 					callback(err, xhr);
 				}
 			});
