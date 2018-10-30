@@ -161,7 +161,13 @@ Radon.register('internal.ajax', function(scope) {
 				callHook("GlobalAjaxCallback_Post", null, data);
 			},
 			error    : function(xhr, err) {
-				alertify.error("network error");
+				if(err == "error" && xhr.status == 0 && xhr.readyState == 0)
+					err = "Unable to connect to server.";
+
+				if(xhr.status == 200 && xhr.responseText.indexOf("MAINTENANCE_MODE_ACTIVATED!") !== -1)
+					err = "Currently under maintenance, please wait.";
+
+				alertify.error("error processing request<br/><small>" + err + "</small>");
 				callHook("GlobalAjaxError", err, xhr, stack, url);
 				callback(err, xhr);
 			}
@@ -175,25 +181,35 @@ Radon.register('internal.ajax', function(scope) {
 		});
 	};
 
-	scope.ajaxForm = function($ele, callback) {
+	scope.ajaxForm = function($ele, callback, hideSubmit) {
 		var url = $ele.attr("action");
 		url += (url.indexOf("?") != -1 ? "&" : "?") + "radon-ui-ajax=true";
-
 		var stack = (new Error()).stack;
 		Pace.track(function() {
+			if(hideSubmit)
+				$ele.find('input[type=submit],button[type=submit]').hide();
 			$ele.ajaxSubmit({
 				url      : url,
 				type     : 'POST',
 				dataType : 'json',
 				success  : function(data) {
-				callHook("GlobalAjaxCallback_Pre", null, data);
-					scope.processFilament(data);
-					scope.processResponseCode(data);
-					callback(null, data);
-				callHook("GlobalAjaxCallback_Post", null, data);
+					callHook("GlobalAjaxCallback_Pre", null, data);
+						scope.processFilament(data);
+						scope.processResponseCode(data);
+						callback(null, data);
+					callHook("GlobalAjaxCallback_Post", null, data);
 				},
 				error    : function(xhr, err) {
-					alertify.error("network error");
+					if(hideSubmit)
+						$ele.find('input[type=submit],button[type=submit]').show();
+
+					if(err == "error" && xhr.status == 0 && xhr.readyState == 0)
+						err = "Unable to connect to server.";
+
+					if(xhr.status == 200 && xhr.responseText.indexOf("MAINTENANCE_MODE_ACTIVATED!") !== -1)
+						err = "Currently under maintenance, please wait.";
+
+					alertify.error("error processing request<br/><small>" + err + "</small>");
 					callHook("GlobalAjaxError", err, xhr, stack, url);
 					callback(err, xhr);
 				}
@@ -245,11 +261,15 @@ Radon.register('internal.ajax', function(scope) {
 		var $ele = $(this);
 		e.preventDefault();
 		scope.ajaxForm($ele, function(err, data) {
-			if(err) return scope.log("error", "load form via ajax failed", err);
+			if(err) {
+				$ele.trigger("submit-complete", [err]);
+				return scope.log("error", "load form via ajax failed", err);
+			}
 			scope.log("info", "loaded form", data);
+			$ele.trigger("submit-complete", []);
 			scope.processRenderActions(data, $ele.attr("action"));
 			data._stateIndex = History.getCurrentIndex();
-		});
+		}, $ele.hasClass("ajax--hide-submit"));
 	});
 
 	$(document).on('click', 'a.ajax', function(e) {
