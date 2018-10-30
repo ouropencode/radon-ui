@@ -162,10 +162,10 @@ Radon.register('internal.ajax', function(scope) {
 			},
 			error    : function(xhr, err) {
 				if(err == "error" && xhr.status == 0 && xhr.readyState == 0)
-					err = "Unable to connect to server.";
+					err = "unable to connect to server.";
 
 				if(xhr.status == 200 && xhr.responseText.indexOf("MAINTENANCE_MODE_ACTIVATED!") !== -1)
-					err = "Currently under maintenance, please wait.";
+					err = "currently under maintenance, please wait.";
 
 				alertify.error("error processing request<br/><small>" + err + "</small>");
 				callHook("GlobalAjaxError", err, xhr, stack, url);
@@ -204,10 +204,10 @@ Radon.register('internal.ajax', function(scope) {
 						$ele.find('input[type=submit],button[type=submit]').show();
 
 					if(err == "error" && xhr.status == 0 && xhr.readyState == 0)
-						err = "Unable to connect to server.";
+						err = "unable to connect to server.";
 
 					if(xhr.status == 200 && xhr.responseText.indexOf("MAINTENANCE_MODE_ACTIVATED!") !== -1)
-						err = "Currently under maintenance, please wait.";
+						err = "currently under maintenance, please wait.";
 
 					alertify.error("error processing request<br/><small>" + err + "</small>");
 					callHook("GlobalAjaxError", err, xhr, stack, url);
