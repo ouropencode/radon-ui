@@ -41,7 +41,7 @@ Radon.register('internal.ajax', function(scope) {
 				alertify.success(data.response.message);
 				return true;
 			case "warning":
-				alertify.warning(data.response.message);
+				alertify.log(data.response.message);
 				return true;
 			case "error":
 			case "exception":
