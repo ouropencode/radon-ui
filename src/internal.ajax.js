@@ -239,7 +239,11 @@ Radon.register('internal.ajax', function(scope) {
 
 	scope.paceOptions = {
 		initialRate: 0.005,
-		minTime: 100
+		minTime: 100,
+		ajax: {
+			trackWebSockets: false,
+			ignoreURLs: ['.sessionstack.com']
+		}
 	};
 
 	Pace.start(scope.paceOptions);
