@@ -54,13 +54,30 @@ Radon.register('internal.ajax', function(scope) {
 		var a, action;
 
 		if(data.render_tpl != scope.$$__currentRenderTemplate) {
-			console.log("current render template changed");
 			scope.$$__currentRenderTemplate = data.render_tpl;
 			scope.renderTemplate(data.render_tpl, null, data.data, function() {
 				scope.processRenderActions(data, url, cb);
 			});
 			return;
 		}
+
+		var expected = {};
+		var next_id = 0;
+
+		var display_tpl = function(action, data) {
+			var entry_id = next_id++;
+			expected[entry_id] = true
+			scope.renderTemplate(action.template, action.target_id, data.data, function() {
+				expected[entry_id] = false;
+				var remaining = Object.keys(expected)
+					.map(function(e) { return expected[e]; })
+					.filter(function(e) { return e == true; })
+					.length;
+
+				if(remaining == 0 && cb != undefined)
+					cb(data, url);
+			});
+		};
 
 		scope.$$__currentData = data;
 		if(data.render_actions !== undefined) {
@@ -82,7 +99,7 @@ Radon.register('internal.ajax', function(scope) {
 						break;
 
 					case "display_tpl":
-						scope.renderTemplate(action.template, action.target_id, data.data);
+						display_tpl(action, data);
 						break;
 				}
 			}
@@ -97,7 +114,7 @@ Radon.register('internal.ajax', function(scope) {
 		}
 
 		callHook("GlobalRenderActionsCallback", data, url);
-		if(cb != undefined)
+		if(next_id == 0 && cb != undefined)
 			cb(data, url);
 	};
 
@@ -225,8 +242,8 @@ Radon.register('internal.ajax', function(scope) {
 		scope.ajax(url, function(err, data) {
 			if(err) return scope.log("error", "load redirect via ajax failed", err);
 			scope.log("info", "loaded redirect", data);
-			scope.processRenderActions(data, url);
 			data._stateIndex = History.getCurrentIndex();
+			scope.processRenderActions(data, url);
 		});
 	};
 
@@ -275,8 +292,8 @@ Radon.register('internal.ajax', function(scope) {
 			}
 			scope.log("info", "loaded form", data);
 			$ele.trigger("submit-complete", []);
-			scope.processRenderActions(data, $ele.attr("action"));
 			data._stateIndex = History.getCurrentIndex();
+			scope.processRenderActions(data, $ele.attr("action"));
 		}, $ele.hasClass("ajax--hide-submit"));
 	});
 
@@ -286,8 +303,8 @@ Radon.register('internal.ajax', function(scope) {
 		scope.ajax($ele.attr("href"), function(err, data) {
 			if(err) return scope.log("error", "load link via ajax failed", err);
 			scope.log("info", "loaded link", data);
-			scope.processRenderActions(data, $ele.attr("href"));
 			data._stateIndex = History.getCurrentIndex();
+			scope.processRenderActions(data, $ele.attr("href"));
 		});
 	});
 });
