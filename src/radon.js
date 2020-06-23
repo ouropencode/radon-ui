@@ -108,12 +108,18 @@ var RadonCore = function () {
 		}
 	};
 
-	instance.log("info", "module handler initalized");
-
-	$(document).onFirst("ready", function() {
+	instance.$$__ondocumentready = function() {
 		instance.$$__onready();
 		instance.$$__onrender();
-	});
+	};
+
+	if (document.readyState === "complete" || document.readyState === "interactive") {
+		setTimeout(instance.$$__ondocumentready, 1);
+	} else {
+		document.addEventListener("DOMContentLoaded", instance.$$__ondocumentready);
+	}
+
+	instance.log("info", "module handler initalized");
 
 	return instance;
 };
