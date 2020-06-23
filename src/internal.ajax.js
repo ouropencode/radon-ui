@@ -123,6 +123,7 @@ Radon.register('internal.ajax', function(scope) {
 			scope.log("info", "loading template", template);
 			scope.ajax("__tpl/" + (template.replace(/\//g, "$@$")), {}, function(err, d) {
 				scope.$$__loadedTemplates[template] = twig({
+          autoescape: true,
 					data: d
 				});
 				scope.log("info", "template loaded", template);
